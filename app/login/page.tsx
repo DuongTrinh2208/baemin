@@ -2,29 +2,61 @@
 import { EyeInvisibleOutlined, EyeTwoTone, FacebookOutlined, GoogleOutlined } from "@ant-design/icons";
 import { Input } from "antd";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
+import { login } from "../apis/fetchApi";
+import { useRouter } from "next/navigation";
 
 const Page: React.FC = () => {
     const [passwordVisible, setPasswordVisible] = React.useState(false);
-    
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const router = useRouter();
+
+    const handleLogin = async () => {
+        const payload = {
+            email,
+            password
+        };
+
+        try {
+            const data = await login(payload);
+            const token = data.access_token;
+
+            if(token){
+                localStorage.setItem('jwtToken', token);
+            }
+
+            router.push('/dashboard')
+        } catch(error){
+            console.log(error);
+        }
+    }
+
     return (
         <>
             <div className="mt-14 w-1/3  bg-white border rounded-2xl flex flex-col p-5 gap-5 pb-8">
                 <div className="flex justify-center items-center w-full text-beamin font-semibold text-[26px]">
-                    Đăng Nhập
+                    Login
                 </div>
                 <div className="flex flex-col w-full gap-3">
-                    <Input placeholder="Email/Số điện thoại/Tên đăng nhập" className="h-[40px]" />
-                </div>
-                <div className="flex flex-col w-full mt-3">
-                    <Input.Password
-                        placeholder="Mật khẩu"
+                    <Input 
+                        placeholder="Email" 
                         className="h-[40px]"
-                        iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                        value={email} 
+                        onChange={(e) => setEmail(e.target.value)}
                     />
                 </div>
                 <div className="flex flex-col w-full mt-3">
-                    <button className="w-full h-[40px] uppercase text-white bg-beamin rounded-lg">Đăng Nhập</button>
+                    <Input.Password
+                        placeholder="Password"
+                        className="h-[40px]"
+                        iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+                <div className="flex flex-col w-full mt-3">
+                    <button className="w-full h-[40px] uppercase text-white bg-beamin rounded-lg" onClick={handleLogin}>Login</button>
                     <div className="flex flex-row justify-between items-center w-full text-sm text-beamin">
                         <span className="cursor-pointer" >Quên mật khẩu </span>
                         <span className="cursor-pointer">Đăng nhập bằng SMS </span>
