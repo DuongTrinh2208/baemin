@@ -3,33 +3,31 @@
 import { AccountBookOutlined, CompassOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import DetailsCheckout from "./detailsCheckout";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { getOrderFoods, payOrder } from "../apis/fetchApi";
 
 export default function Home() {
-    const detail: any = [
-        {
-            name:'Ga ran',
-            description:'Chiên bột',
-            price:17000,
-            quantity:2,
-            totalprice:17000,
-            img:'/food/ga1.jpg'
-        },
-        {
-            name:'Ga ran',
-            description:'Chiên bột',
-            price:17000,
-            quantity:2,
-            totalprice:17000,
-            img:'/food/ga1.jpg'
-        }
-    ]
+    const searchParams = useSearchParams();
+    const orderId = searchParams?.get('orderId');
+    const [detail, setDetail] = useState<any>([]);
     const router = useRouter();
-    const handleNavigate = () => {
-       
-          router.push('/statusorder');
-        
-      };
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const responseOrder = await getOrderFoods({ orderId });
+            setDetail(responseOrder?.data);
+        };
+
+        fetchData();
+    }, [orderId]);
+
+    const handleNavigate = async () => {
+        const data = await payOrder({orderId});
+        console.log(data);
+        router.push('/statusorder');
+
+    };
     return (
         <>
             <div className="flex flex-row w-full h-20 bg-white ">
@@ -70,7 +68,7 @@ export default function Home() {
                     <div className="ml-10">
                         The ChicKen Gang
                     </div>
-                    
+
                     <DetailsCheckout items={detail} />
                     <div className="border-t w-full  mt-4">
                         <div className="ml-[40%]  flex flex-row justify-between items-center py-2 " >
@@ -174,7 +172,7 @@ export default function Home() {
                         <div className="w-[70%] ml-8">
                             Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo <span className="text-blue-600 text-sm cursor-pointer">Điều khoản Baemin</span>
                         </div>
-                        <div  className="w-[30%] pl-48 ">
+                        <div className="w-[30%] pl-48 ">
                             <button onClick={handleNavigate} className="p-1 bg-beamin text-white w-36 rounded-md h-10 hover:brightness-105">
                                 Đặt hàng
                             </button>
